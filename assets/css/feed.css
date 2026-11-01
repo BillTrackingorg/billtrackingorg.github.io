@@ -1504,7 +1504,7 @@ span.bt-tex { cursor: default; }
   max-width: none;
 }
 
-.geo-picker { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 0.6rem; }
+.geo-picker { display: flex; flex-wrap: wrap; gap: 0.8rem; }
 .geo-field { display: flex; flex-direction: column; gap: 0.25rem; min-width: 11rem; flex: 1; }
 .geo-field[hidden] { display: none; }
 .geo-label {
@@ -1525,18 +1525,39 @@ span.bt-tex { cursor: default; }
   color: var(--ink);
 }
 .geo-select[disabled] { color: var(--ink-faint-aa); background: var(--paper); }
+
+.geo-select-box { position: relative; display: block; }
+.geo-select-box .geo-select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 35px;
+}
+.geo-select-box .glyph {
+  position: absolute;
+  top: 50%;
+  right: 11px;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  color: var(--ink-faint-aa);
+  pointer-events: none;
+}
 .geo-status { flex-basis: 100%; }
 .geo-status:empty { display: none; }
 
-.geo-more summary { cursor: pointer; }
-.geo-more[open] summary { margin-bottom: 0.35rem; }
+.geo-disclosure > summary { display: block; list-style: none; cursor: pointer; }
+.geo-disclosure > summary::-webkit-details-marker { display: none; }
+.geo-disclosure:not([open]) .geo-whole,
+.geo-disclosure:not([open]) .geo-deeper,
+.geo-disclosure[open] .geo-peek { display: none; }
+.geo-disclosure .geo-deeper { display: block; margin-top: 6px; }
+.geo-disclosure .glyph { width: 12px; height: 12px; --glyph-stroke: 2.2; vertical-align: -1px; }
 
 .acct-card .geo-disclosure,
 .geo-disclosure { margin-top: 1.1rem; }
 .geo-disclosure,
-.geo-status,
-.geo-more summary,
-.geo-more p { font-size: 0.8rem; }
+.geo-status { font-size: 0.8rem; }
 
 .acct-delete { border-color: color-mix(in srgb, var(--red) 35%, var(--line)); }
 .btn-provider.is-danger { border-color: var(--navy); color: var(--navy); }

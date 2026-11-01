@@ -20,7 +20,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png">
 <link rel="stylesheet" href="/style.css?v=8">
-<link rel="stylesheet" href="/assets/css/feed.css?v=59">
+<link rel="stylesheet" href="/assets/css/feed.css?v=60">
 </head>
 <body>
 
@@ -139,15 +139,12 @@
 
     <!-- MOUNT: the Country picker — always editable, hold-and-apply.
 
-         ⚠️ THE COUNTRY IS SELF-DECLARED AND DELIBERATELY UNVERIFIABLE. The caption claims
+         ⚠️ THE COUNTRY IS SELF-DECLARED AND DELIBERATELY UNVERIFIABLE. Any copy here claims
          only what the product DOES with it (where the vote appears in the public
          geo-breakdown), never residence or origin, and future copy must not claim
          otherwise. The picker's own "Country" row label is the name; this card carries no
-         heading of its own. -->
+         heading and no caption of its own, as the app's. -->
     <div class="acct-card">
-      <p>Decide where your vote appears in the public geo-breakdown. Leave it
-      blank and your vote still counts, just without a place. Change it
-      anytime.</p>
       <div id="bt-geo-picker"></div>
     </div>
 
@@ -166,10 +163,10 @@
       <div id="bt-consent-body"></div>
     </div>
 
-    <!-- Your votes: its own card, outside Settings. Links only. -->
+    <!-- Your data: its own card, outside Settings, named and worded as the app's own
+         section. Links only. -->
     <div class="acct-card">
-      <h2>Your votes</h2>
-      <p>See, change or withdraw any vote</p>
+      <h2>Your data</h2>
       <ul class="acct-links">
         <li><a href="/votes">Your votes</a></li>
         <li><a href="/delete-data">Delete some of your data</a></li>
