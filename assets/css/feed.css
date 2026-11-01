@@ -492,7 +492,8 @@ button[disabled],
   font-size: 12px;
   line-height: 17px;
   color: var(--ink-soft);
-  margin: 0 0 10px;
+
+  margin: 0 0 8px;
   max-width: none;
 }
 
@@ -500,7 +501,7 @@ button[disabled],
   font-size: 14.5px;
   line-height: 22.5px;
   color: var(--ink);
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   max-width: none;
 }
 
@@ -816,7 +817,8 @@ button[disabled],
   align-items: baseline;
   gap: 5px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+
+  border-radius: 7px;
   padding: 4px 11px;
   background: var(--card);
   font-family: var(--sans);
@@ -1285,7 +1287,8 @@ span.bt-tex { cursor: default; }
 .vote-consent-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .vote-consent-btn {
   border: 1px solid var(--line);
-  border-radius: 999px;
+
+  border-radius: 7px;
   padding: 5px 13px;
   background: var(--card);
   font-family: var(--sans);
