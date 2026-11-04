@@ -389,32 +389,34 @@ jobs:
           # (or was published by an earlier run) the directory exists and is staged
           # exactly as before.
           if [ -d corrections ]; then git add -A corrections; fi
+          # ⚠️ A VIEW FILE WHOSE ONLY CHANGE IS ITS STAMP IS NOT COMMITTED (2026-10-29, the
+          # app's feed scale build). Every render stamps every view file's top-level
+          # `built_at`, so one real change to one post re-wrote all of view/v1/bills/ for
+          # the stamp alone: measured over 60 recent renders, 44 would have changed nothing
+          # else, and 30,984 view files were rewritten for the stamp. October 2026's history
+          # replayed this way grows the site repository by about half as much: packed, about
+          # 1.5 MB a day instead of 3 (2 instead of 4 over its last two weeks), which still
+          # reaches GitHub's recommended 1 GB during 2028. Each modified view file is
+          # compared with HEAD's with that one field removed; where nothing else differs,
+          # HEAD's copy is put back. A file's stamp then says when its CONTENT last
+          # changed, which nothing reads (the record's freshness is judged from the feed).
+          # The core's own stamp (`core.builtAt`, `core.appSha`) is content, in every view
+          # file: a new core still publishes.
+          while IFS= read -r f; do
+            a=$(git show "HEAD:$f" | sed 's/"built_at":"[^"]*"//')
+            b=$(git show ":$f" | sed 's/"built_at":"[^"]*"//')
+            if [ "$a" = "$b" ]; then git restore -q --source=HEAD --staged --worktree -- "$f"; fi
+          done < <(git diff --cached --name-only --diff-filter=M -- view)
+          # Nothing left but stamps: no commit. A push for the stamps alone would deploy the
+          # whole site for nothing (GitHub Pages rebuilds on every push, and its build quota
+          # is ~10/hour), and the record's freshness is judged from the feed, never from a
+          # stamp (2026-08-20).
           if git diff --cached --quiet; then echo "no page changes"; exit 0; fi
-          # A quiet run still moves view/v1/index.json (its built_at heartbeat). A commit
-          # whose ONLY change is that stamp would deploy the whole site every 15 minutes
-          # for nothing — GitHub Pages rebuilds on every push, and its build quota is
-          # ~10/hour. So a heartbeat-only diff is not worth a publish; view consumers get
-          # a fresh built_at whenever anything real changes, and the record's own
-          # freshness is judged from the feed, never from this stamp (2026-08-20).
-          #
-          # ⚠️ EXCEPT WHEN THE STAMP NAMES A NEW CORE. `index.json` carries
-          # `core.appSha` — which build rendered this tree — and that is not a
-          # heartbeat: after a bundle redeploy the FIRST quiet run is the only
-          # thing that refreshes it, and skipping it would leave view/ claiming
-          # the previous build until the next post happens to arrive. The file is
-          # one long line, so "did the diff mention appSha" is always yes; the
-          # two blobs are compared by VALUE instead — HEAD's against the staged
-          # one (estate review, 2026-08-20).
-          staged=$(git diff --cached --name-only)
-          if [ "$staged" = "view/v1/index.json" ]; then
-            sha_of() { grep -o '"appSha":"[^"]*"' | head -n1 || true; }
-            was=$( { git show HEAD:view/v1/index.json 2>/dev/null || true; } | sha_of)
-            now=$(git show :view/v1/index.json | sha_of)
-            if [ "$was" = "$now" ]; then
-              echo "only the view heartbeat changed — skipping the publish"; git reset -q; exit 0
-            fi
-            echo "the view stamp names a new core (${was:-none} -> ${now:-none}) — publishing"
-          fi
+          # view/v1/index.json's stamp marks the LAST PUBLISH (2026-08-20: view consumers
+          # get a fresh built_at whenever anything real changes). The loop above put back
+          # its old copy if only the stamp moved, so a real publish takes the fresh one.
+          cp out/view/v1/index.json view/v1/index.json
+          git add view/v1/index.json
           git commit -q -m "permalinks: render $new post + $newb bill pages from the published feed"
           # The repo also takes owner pushes; a race is ordinary. p/, b/,
           # corrections/ and view/ are ours alone, so a rebase can never conflict
