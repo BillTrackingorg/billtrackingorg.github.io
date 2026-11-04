@@ -4,7 +4,7 @@
     "details": [
       {
         "appID": "5TP38V2GKF.org.billtracking.app",
-        "paths": ["/p/*", "/b/*"]
+        "paths": ["/p/*", "/b/*", "/*/p/*", "/*/b/*"]
       }
     ]
   }
