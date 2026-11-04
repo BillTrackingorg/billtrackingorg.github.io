@@ -19,8 +19,8 @@ push = deploy). So **nothing goes in here that isn't meant to be read by
 anyone**: no notes, no fixtures, no secrets. This repo holds what is served
 plus the compiled core: hand-written pages, `style.css`, `assets/css/feed.css`,
 `legal/` (the D23 policy SOURCES — public on purpose), the feed/account/callback
-shells (`us.html`, `eu.html`, `account.html`, `auth/callback.html`, `404.html`),
-the workflow-rendered `p/`, `b/` and `view/` trees, and in `assets/js/` +
+shells (`account.html`, `auth/callback.html`, `404.html`), the workflow-rendered
+`corrections/` log and the forwarding pages in `p/` and `b/`, and in `assets/js/` +
 `tools/` the two compiled bundles (`bt-web.js` for the browser, `bt-site.cjs`
 for the workflow — public by design so this repo's own workflow can run with no
 credentials; the app's DATA layer, not its screens, and nothing secret in it).
@@ -77,16 +77,22 @@ push — since 2026-10-13, app OPEN-ITEMS OI-0305 — plus every 15 min as the
 backstop and manual; built-in token, no credentials of its own; the run starts
 by making the bundle prove itself with `--selftest`):
 
-- **`/p/<id>`** — one static page per delivered post (the shared artifact +
-  funnel), plus `p/sitemap.xml` and a `/p/` browse index. Post pages are
-  `noindex` and are the bill pages' citations.
-- **`/b/<polity>/<slug>`** — the INDEXABLE unit: one page per bill (`/b/us/119-hr-3497`,
-  `/b/eu/2023-0447-cod`), showing the same merged path the app's bill screen
-  shows, plus a `/b/<polity>/` index and a root `bill-sitemap.xml`. Bill pages
-  carry `noindex` until the owner's Gate-2 flip (`INDEX_BILL_PAGES`, in the app
-  repo's `src/site/chrome.ts`). `/b/` is a SEPARATE tree from the app's web
+*Since the website split (2026-11), every legislature's pages live in a repository of its own, named
+exactly its id and served at `billtracking.org/<id>/`; each holds one hand-written file, a caller of
+this repository's `permalinks.yml`, which writes the rest from here on every run. This repository's own
+run writes the one `/corrections/` log and a forwarding page at every address the US's and the EU's
+pages had before (`/p/<id>`, `/b/<polity>/<slug>`), for good.*
+
+- **`/<id>/p/<post>`** — one static page per delivered post (the shared artifact +
+  funnel), plus the legislature's `p/sitemap.xml` and its `/<id>/p/` browse index. Post
+  pages are `noindex` and are the bill pages' citations.
+- **`/<id>/b/<slug>`** — the INDEXABLE unit: one page per bill (`/us/b/119-hr-3497`,
+  `/eu/b/2023-0447-cod`), showing the same merged path the app's bill screen
+  shows, plus a `/<id>/b/` index and the legislature's `bill-sitemap.xml`. Indexable
+  since the owner's Gate-2 flip (`INDEX_BILL_PAGES`, in the app repo's
+  `src/site/chrome.ts`). The bill pages are a SEPARATE tree from the app's web
   export `bill/[ref].html`.
-- **`view/v1/`** — the same render, packaged as JSON (index, shaped months,
+- **`/<id>/view/v1/`** — the same render, packaged as JSON (index, shaped months,
   per-bill views, the legislature registry). Published as data for a future
   surface; **nothing depends on it today.**
 

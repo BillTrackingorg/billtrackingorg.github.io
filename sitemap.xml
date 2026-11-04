@@ -13,8 +13,9 @@
   <url><loc>https://billtracking.org/terms</loc></url>
   <url><loc>https://billtracking.org/delete-account</loc></url>
   <url><loc>https://billtracking.org/delete-data</loc></url>
-  <!-- The permanent permalink pages live under /p/; this is their browse index.
-       The full per-post list is in /p/sitemap.xml (built at deploy, also
-       referenced from robots.txt). -->
-  <url><loc>https://billtracking.org/p/</loc></url>
+  <!-- Each legislature's permanent post pages live under /<id>/p/ (the website
+       split, 2026-10-29); these are their browse indexes. The full per-post lists
+       are each legislature's /<id>/p/sitemap.xml, referenced from robots.txt. -->
+  <url><loc>https://billtracking.org/us/p/</loc></url>
+  <url><loc>https://billtracking.org/eu/p/</loc></url>
 </urlset>

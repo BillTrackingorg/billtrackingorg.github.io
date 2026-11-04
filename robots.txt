@@ -2,21 +2,29 @@ User-agent: *
 Allow: /
 
 # GitHub Pages serves the entire repo (there is a .nojekyll file). The permalink
-# renderer (tools/), this repo's README and the published view/ data tree (JSON,
-# written by the permalinks workflow for other surfaces — not pages) are the
-# non-page files here — keep them out of search results. (Other tooling, and the
-# page contract this bundle is built against, live in the private app repo.)
+# renderer (tools/) and this repo's README are the non-page files here — keep them
+# out of search results. (Other tooling, and the page contract this bundle is built
+# against, live in the private app repo.)
 Disallow: /README.md
 Disallow: /tools/
 Disallow: /.github/
-Disallow: /view/
 
-# Three sitemaps: the hand-maintained top-level pages; the BILL pages under /b/
-# (the indexable unit — one page per bill, Gate 2 flipped 2026-08-19); and the post
-# pages under /p/, which are noindex citations of their bill and are listed so a
-# crawler can discover the canonical bill page from a shared link. All three are
-# rendered from the published record by this repo's permalinks workflow (no
-# cadence is promised; GitHub schedules on a best-effort basis).
+# Every legislature is served from a repository of its own at /<id>/ (the website
+# split, 2026-10-29: the US and the EU moved to /us/ and /eu/). Its published view/
+# data tree (JSON, written by the permalinks workflow for other surfaces — not
+# pages) and its one workflow file are kept out of search the same way.
+Disallow: /*/view/
+Disallow: /*/.github/
+
+# The hand-maintained top-level pages, then each legislature's two: its BILL pages
+# under /<id>/b/ (the indexable unit — one page per bill, Gate 2 flipped 2026-08-19)
+# and its post pages under /<id>/p/, which are noindex citations of their bill and
+# are listed so a crawler can discover the canonical bill page from a shared link.
+# Rendered from the published record by each legislature's permalinks run (no
+# cadence is promised; GitHub schedules on a best-effort basis). A legislature's
+# pair joins here at its arming.
 Sitemap: https://billtracking.org/sitemap.xml
-Sitemap: https://billtracking.org/bill-sitemap.xml
-Sitemap: https://billtracking.org/p/sitemap.xml
+Sitemap: https://billtracking.org/us/bill-sitemap.xml
+Sitemap: https://billtracking.org/us/p/sitemap.xml
+Sitemap: https://billtracking.org/eu/bill-sitemap.xml
+Sitemap: https://billtracking.org/eu/p/sitemap.xml

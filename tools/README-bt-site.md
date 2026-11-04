@@ -49,9 +49,11 @@ skew is observable, never assumed.
 ## The contract
 
 ```sh
-node tools/bt-site.cjs --feed feed --paths paths --out out
+node tools/bt-site.cjs --feed feed --out out                    # the main site: the corrections log and the forwarding pages
 node tools/bt-site.cjs --feed feed --list-paths     # artifact filenames to fetch
 node tools/bt-site.cjs --selftest                   # the fixture assertions
+node tools/bt-site.cjs --list-legislatures          # the legislatures a run reads (the website split)
+node tools/bt-site.cjs --legislature us --feed feed --paths paths --out out   # one legislature's own site
 ```
 
 | flag | meaning |
@@ -59,10 +61,12 @@ node tools/bt-site.cjs --selftest                   # the fixture assertions
 | `--feed <dir\|file>` | repeatable. A directory contributes its `*.jsonl` sorted by name, minus `*-overrides.jsonl`. **Required.** |
 | `--overrides <file>` | repeatable. Omitted ⇒ every `--feed` directory is scanned for `*-overrides.jsonl`, which is how the bots publish the corrections sheets. |
 | `--paths <dir>` | the bill-path artifacts the workflow already fetched. Omitted ⇒ every bill renders posts-only, which is honest and is what the app shows when an artifact is missing. |
-| `--out <dir>` | **required for a render.** Pages go to `<out>/p/`, `<out>/b/`, `<out>/view/`. There is no default: a bare run used to default to this repo and render sample fixtures into the deploy tree (adversarial review 2026-08-16). There is no sample corpus at all now. |
+| `--out <dir>` | **required for a render.** Pages go to `<out>/p/`, `<out>/b/` and, on a legislature's run, `<out>/view/`. There is no default: a bare run used to default to this repo and render sample fixtures into the deploy tree (adversarial review 2026-08-16). There is no sample corpus at all now. |
 | `--sprite <file>` | defaults to `glyphs.svg` **beside this script**. The sprite is build input, inlined into every page that draws glyphs — never linked (app repo `docs/WEB-CONTRACT.md` §5). |
 | `--list-paths` | print the artifact filenames the feed needs, one per line, and exit. |
 | `--selftest` | run the fixture assertions compiled into the bundle and exit. |
+| `--legislature <id>` | *(2026-10-29, the website split)* render that legislature's own site, as its repository holds it: every address under its id (`/<id>/…`), `b/<slug>.html` with no polity folder, no `corrections/`. Only that legislature's `<id>-*.jsonl` and sheet are read. An unknown id is refused, exit 1. Omitted: the main site, which holds no legislature's pages — the one corrections log for every legislature, and a forwarding page at every address the US's and the EU's pages had before they moved under `/us/` and `/eu/` (`p/<id>.html`, `b/<polity>/<slug>.html`, the two old indexes); it reads no path artifact. |
+| `--list-legislatures` | print the legislatures the run reads, one per line, `id feedPrefix feedSince`, and exit: every launched one for the main run, the one named with `--legislature`. The permalinks workflow's fetch reads it. |
 
 **Exit codes.** `0` = the render is publishable. `1` = something would have made
 a page untrustworthy, so the workflow commits nothing (loudness doctrine). `2` =
@@ -77,17 +81,23 @@ would not parse, a legislature this build does not carry.
 
 ### What it writes
 
+A legislature's run (`--legislature <id>`), into that legislature's repository, served at `/<id>/`:
+
 | path | what |
 |---|---|
 | `p/<id>.html` | one page per POST — the share-link landing and OG card |
 | `p/index.html`, `p/sitemap.xml` | the post index and its sitemap (noindex) |
-| `b/<polity>/<slug>.html` | one page per BILL — the indexable unit |
-| `b/<polity>/index.html` | the per-legislature bill index |
-| `bill-sitemap.xml` | the bill sitemap (listed in `robots.txt` only at Gate 2) |
+| `b/<slug>.html` | one page per BILL — the indexable unit |
+| `b/index.html` | the legislature's bill index |
+| `bill-sitemap.xml` | the bill sitemap (listed in `robots.txt`) |
 | `view/v1/…` | the published packaged form: `index.json`, `<polity>-<month>.json`, `bills/<polity>/<slug>.json`, `registry.json` |
 | `.suppressed-pages`, `.suppressed-bills` | the workflow's set-diff shrink guards read these; they are never published |
 
-`p/`, `b/` and `view/` are **workflow-owned trees**. Never hand-edit them, and
+The main run, into this repository: `corrections/index.html`; a forwarding page at each old US and EU
+address, `p/<id>.html`, `b/<polity>/<slug>.html`, `b/<polity>/index.html` and `p/index.html`; and the two
+manifests.
+
+`p/`, `b/` and (in a legislature's repository) `view/` are **workflow-owned trees**. Never hand-edit them, and
 never commit a locally rendered copy.
 
 ---
@@ -171,11 +181,12 @@ node tools/bt-site.cjs --selftest
 
 ## The Gate-2 flip
 
-**Flipped 2026-08-19.** Bill pages and the `/b/` indexes are indexable and
-`bill-sitemap.xml` is listed in `robots.txt`; `/p/` pages stay `noindex` forever (they
-are the bill's citations). The switch is ONE constant — `INDEX_BILL_PAGES` in the app
-repo's `src/site/chrome.ts` — and the renderer's selftest follows it. The remaining step
-is the owner's: submit the bill sitemap in Search Console.
+**Flipped 2026-08-19.** Bill pages and the bill indexes are indexable, and each
+legislature's `bill-sitemap.xml` (and its post sitemap) is listed in `robots.txt`;
+post pages stay `noindex` forever (they are the bill's citations). The switch is ONE
+constant — `INDEX_BILL_PAGES` in the app repo's `src/site/chrome.ts` — and the renderer's
+selftest follows it. The remaining step is the owner's: submit the sitemaps
+`robots.txt` lists in Search Console.
 
 ## ⚠️ Rebuilding this bundle is a DEPLOY, not a build step
 

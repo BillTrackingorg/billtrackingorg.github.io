@@ -1,9 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Render the feed pages (/us, /eu) from ONE template.
+"""Render each legislature's feed page (/us/, /eu/) from ONE template.
 
-    python tools/build_feed_pages.py            # writes us.html, eu.html
-    python tools/build_feed_pages.py --check    # exit 1 if either is stale
+    python tools/build_feed_pages.py --legislature us --out <dir>
+                                                # that legislature's feed page, <dir>/index.html
+    python tools/build_feed_pages.py            # refreshes the sprite in 404.html
+    python tools/build_feed_pages.py --check    # exit 1 if 404.html's sprite is stale,
+                                                # or a row does not render
+
+THE WEBSITE SPLIT (2026-10-29, the app's feed scale build). Every legislature,
+the US and the EU included, is served from a repository of its own, named
+exactly its id, at billtracking.org/<id>/. Its feed page is that repository's
+index.html, written by the permalinks workflow on every run with --legislature
+from the main repository's checkout (this script and this template), so it
+cannot drift; its post archive is /<id>/p/ and its bill index /<id>/b/. The
+US's and the EU's pages were this repository's us.html and eu.html, written
+here, until the split moved them.
 
 Standard library only, like tools/generate.py.
 
@@ -220,6 +232,16 @@ def paste_sprite(html: str, sprite: str, where: str) -> str:
     return html[:head_end] + "\n" + sprite.rstrip("\n") + "\n" + html[j:]
 
 
+def addresses(polity: str) -> dict[str, str]:
+    """The page's own address, its post archive and its bill index.
+
+    The website split (2026-10-29): every legislature lives under its own id,
+    /<id>/ (its repository's index), /<id>/p/ and /<id>/b/ — the app's
+    `feedPath`, the renderer's post index and `billIndexPath`.
+    """
+    return {"FEED_PATH": "/%s/" % polity, "POST_INDEX": "/%s/p/" % polity, "BILL_INDEX": "/%s/b/" % polity}
+
+
 def render(polity: str, entry: dict[str, str], template: str) -> str:
     # Registry text is escaped; the markup this script writes itself (the
     # intro's #bt-window span and the nav's aria-current) is the only thing
@@ -243,6 +265,8 @@ def render(polity: str, entry: dict[str, str], template: str) -> str:
         # rather than by the address: on /eu the reader IS on the feed, and a
         # nav that said otherwise would be lying about where they are.
         "NAV_CURRENT_FEED": CURRENT,
+        # The addresses (the website split): under the legislature's own id.
+        **{k: esc(v) for k, v in addresses(polity).items()},
     }
     out = template
     for key, value in fields.items():
@@ -261,24 +285,39 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--check",
         action="store_true",
-        help="do not write; exit 1 if any page differs from what the template renders",
+        help="do not write; exit 1 if 404.html's sprite is stale or a row does not render",
     )
+    ap.add_argument(
+        "--legislature",
+        help="write this legislature's feed page as <out>/index.html, and nothing else",
+    )
+    ap.add_argument("--out", help="the folder --legislature writes into (its repository's checkout)")
     args = ap.parse_args(argv)
 
     template = TEMPLATE.read_text(encoding="utf-8")
     sprite = SPRITE.read_text(encoding="utf-8")
     stale: list[str] = []
 
-    for polity, entry in LEGISLATURES.items():
-        target = ROOT / ("%s.html" % polity)
-        html = paste_sprite(render(polity, entry, template), sprite, target.name)
-        if args.check:
-            current = target.read_text(encoding="utf-8") if target.exists() else ""
-            if current != html:
-                stale.append(target.name)
-            continue
+    # A legislature's own feed page (the website split): the permalinks
+    # workflow writes it into that legislature's repository on every run.
+    if args.legislature is not None or args.out is not None:
+        if args.legislature is None or args.out is None or args.check:
+            ap.error("--legislature and --out go together, without --check")
+        entry = LEGISLATURES.get(args.legislature)
+        if entry is None:
+            print("::error::%s is not a legislature in this table" % args.legislature)
+            return 1
+        target = pathlib.Path(args.out) / "index.html"
+        html = paste_sprite(render(args.legislature, entry, template), sprite, target.name)
         target.write_text(html, encoding="utf-8", newline="\n")
-        print("wrote %s (%d bytes)" % (target.name, len(html.encode("utf-8"))))
+        print("wrote %s (%d bytes)" % (target, len(html.encode("utf-8"))))
+        return 0
+
+    # --check renders every row too, so a placeholder the template gained and a
+    # row cannot fill fails here rather than in a legislature's run.
+    if args.check:
+        for polity, entry in LEGISLATURES.items():
+            paste_sprite(render(polity, entry, template), sprite, "index.html")
 
     # The hand-authored card-drawing pages keep the same sprite block, refreshed
     # in place — everything outside the markers is theirs and is left alone.
@@ -298,8 +337,8 @@ def main(argv: list[str] | None = None) -> int:
         if stale:
             print("stale (re-run tools/build_feed_pages.py): %s" % ", ".join(stale))
             return 1
-        print("feed pages up to date: %s (+ %s)"
-              % (", ".join(sorted(LEGISLATURES)), ", ".join(SPRITE_PAGES)))
+        print("feed pages render: %s; sprite up to date: %s"
+              % (", ".join(LEGISLATURES), ", ".join(SPRITE_PAGES)))
     return 0
 
 

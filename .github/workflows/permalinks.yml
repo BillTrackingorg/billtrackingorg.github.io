@@ -1,11 +1,11 @@
-# Permalink + bill pages — billtracking.org/p/<id> and /b/<polity>/<slug>
+# Permalink + bill pages — billtracking.org/<legislature>/p/<id> and /<legislature>/b/<slug>
 #
-# TWO page types, one renderer, one run:
-#  • /p/<id> — every post the app can "Copy link" as a static page: the post as
+# TWO page types, one renderer, one run per legislature:
+#  • /<legislature>/p/<id> — every post the app can "Copy link" as a static page: the post as
 #    itself (the shared artifact), an honest CTA, the D22 dateline, any public
 #    correction. The OS-can't-route fallback + the OG/share card for every link.
 #    A post that belongs to a bill points its canonical at that bill (below).
-#  • /b/<polity>/<slug> — the INDEXABLE unit: one page per bill (bounded by bills
+#  • /<legislature>/b/<slug> — the INDEXABLE unit: one page per bill (bounded by bills
 #    that MOVE, not by time), showing the same merged path the app's bill screen
 #    shows (parity proven by the app's scripts/check-permalinks.js). Post pages
 #    are its citations. Bill pages carry `noindex` until the owner's Gate-2 flip
@@ -22,12 +22,14 @@
 # content models and their HTML renderers — the same modules the phone runs. No
 # second implementation of a product rule lives on this side any more.
 # tools/generate.py, the Python port it replaced, was deleted on 2026-08-19 once the
-# swap was proven over the live corpus; no step here needs Python.
+# swap was proven over the live corpus. The main run needs no Python; a legislature's
+# run writes its feed page with python3 renderer/tools/build_feed_pages.py (standard
+# library only; python3 is on ubuntu-latest).
 #
 # THE BOTS ARE NEVER TOUCHED. This job PULLS the published feed files + the
 # per-bill path artifacts (public GitHub Pages, the same bytes the phones read),
-# runs tools/bt-site.cjs, and commits ONLY the generated p/ + b/ + corrections/ +
-# view/ trees and the bill sitemap. Nothing here can change a post, a tally, a
+# runs tools/bt-site.cjs, and commits ONLY what it generates (each kind of run's list
+# is below). Nothing here can change a post, a tally, a
 # path, or a bot. b/ is SEPARATE from the app's own web export (bill/[ref].html) — never
 # touched here. view/ is the published packaged form of the same render (index,
 # shaped months, per-bill views, the legislature registry): data for any future
@@ -63,11 +65,57 @@
 # asks for `main` by name, which is resolved when the step runs, so a queued
 # render begins where the previous one ended.
 #
+# ONE WORKFLOW FOR EVERY SITE (the website split, 2026-10-29; the app's
+# NEW-LEGISLATURE-CHARTER Part III, THE WEB + SITE). Every legislature, the US and the
+# EU included, is served from a public repository named exactly its id, at
+# billtracking.org/<id>/, and that repository holds ONE hand-written file, a caller
+# of this workflow:
+#
+#     name: permalinks
+#     on:
+#       schedule: [{ cron: '*/15 * * * *' }]
+#       workflow_dispatch: {}
+#     concurrency: { group: permalinks, cancel-in-progress: false }
+#     permissions: { contents: write }
+#     jobs:
+#       render:
+#         uses: BillTrackingorg/billtrackingorg.github.io/.github/workflows/permalinks.yml@main
+#         with: { legislature: <id> }
+#
+# A called run (`inputs.legislature` set) checks out the caller, then THIS repository
+# into renderer/, and runs renderer/tools/bt-site.cjs --legislature <id>: one
+# renderer, one copy point. It writes that legislature's p/, b/<slug>.html (the
+# polity is the first segment, never a folder), view/v1/ (bills/<polity>/ kept: data,
+# one shape for the guards), the sitemaps, and the carrier files a reader's browser
+# needs there (.nojekyll, 404.html copied from here, index.html — the feed page — from
+# tools/build_feed_pages.py), all from this repository's checkout on every run, so
+# nothing in a legislature's repository can drift.
+#
+# THIS REPOSITORY'S OWN RUN (schedule, dispatch) writes no legislature's pages. It
+# writes the one public /corrections/ log, which lists every legislature's
+# corrections (--list-legislatures: it reads every launched legislature, each row
+# linking under its id), and the FORWARDING PAGES at every address the US's and the
+# EU's pages had before they moved under /us/ and /eu/ (/p/<id>, /b/<polity>/<slug>,
+# /b/<polity>/, /p/), one per post and bill, for good: a shared, bookmarked or indexed
+# link still lands. It needs no path artifact. `uses:` references are not redirected
+# by a repository rename: renaming this repository after the first caller exists
+# breaks every caller.
+#
+# THE MAIN RUN'S OWN GUARDS (loud, never fatal, never healed by themselves): a
+# Pages-enabled repository on the account named after a root entry of this site
+# hides that path for every reader (::error::); one that is neither this site, the
+# feed nor a registered legislature is named (::warning::): it is served on the
+# sign-in origin, so write access to it is write access to this site's readers'
+# sessions; and each registered legislature's caller must be active (::error::),
+# because GitHub switches a public repository's schedule off after 60 days without
+# activity (the feed's render-site.yml switches it back on before a dispatch), unless
+# it was switched off by hand, which is a deliberate stop and is named as one.
+#
 # Failure posture (loudness doctrine): any fetch/render error fails the run
 # and nothing is committed. A partial or SHRUNKEN tree is never published:
 # past months are immutable (D17), so a past-month 404 or empty file, a
-# page-count shrink (posts OR bills), or a stray non-generated file under p/ or
-# b/ all fail loudly. A path artifact 404 is the one tolerated miss — a bill
+# page-count shrink (posts OR bills, pages or forwarding pages), or a stray
+# non-generated file under p/ or b/ all fail loudly. A path artifact 404 is the one tolerated miss — a bill
 # with no path yet is normal (posts-only, the app does the same); any OTHER
 # path-fetch code fails the run (the artifact may exist and we just couldn't
 # get it — never publish a page that would falsely say "not published yet").
@@ -77,9 +125,19 @@ on:
   schedule:
     - cron: '*/15 * * * *'
   workflow_dispatch: {}
+  # A legislature's own repository calls this (the website split; the header).
+  workflow_call:
+    inputs:
+      legislature:
+        description: The legislature whose own site this run writes; its repository is named exactly this id.
+        type: string
+        required: true
 
+# The main run's group is `permalinks`, as it always was. A called run takes a group of
+# its own: its caller already holds `permalinks` in the caller's repository, and a
+# called workflow asking for the group its caller holds is a deadlock GitHub cancels.
 concurrency:
-  group: permalinks
+  group: ${{ inputs.legislature && format('permalinks-{0}', inputs.legislature) || 'permalinks' }}
   cancel-in-progress: false
 
 permissions:
@@ -89,13 +147,34 @@ jobs:
   render:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      # Empty on the main run. On a called run: the legislature's id, and the folder
+      # this repository (the renderer, the templates, 404.html) is checked out into.
+      LEG: ${{ inputs.legislature }}
+      RT: ${{ inputs.legislature && 'renderer/' || '' }}
     steps:
       # `ref: main`, by name: see "ONE RUN AT A TIME" in the header. Without it a
       # run queued in the concurrency group checks out the commit the branch was
-      # at when the run was created, not when it starts.
+      # at when the run was created, not when it starts. (On a called run, this is
+      # the caller's repository: the legislature's own.)
       - uses: actions/checkout@v4
         with:
           ref: main
+
+      # A called run writes a legislature's pages into that legislature's repository
+      # and nowhere else; and it renders with THIS repository's renderer, by name.
+      - name: Check this is the legislature's own repository
+        if: inputs.legislature
+        run: |
+          set -euo pipefail
+          [ "${GITHUB_REPOSITORY#*/}" = "$LEG" ] || { echo "::error::this workflow was called for the legislature \"$LEG\" from ${GITHUB_REPOSITORY}: a legislature's pages are written only into the repository named exactly its id"; exit 1; }
+      - name: Check out the renderer (the main site's repository)
+        if: inputs.legislature
+        uses: actions/checkout@v4
+        with:
+          repository: BillTrackingorg/billtrackingorg.github.io
+          ref: main
+          path: renderer
 
       # Node 20 — the runtime the committed bundle targets (esbuild
       # `target: node20`; app repo site-build/core/build.mjs).
@@ -113,19 +192,79 @@ jobs:
       - name: Check the renderer, and let it prove itself
         run: |
           set -euo pipefail
-          for f in tools/bt-site.cjs tools/glyphs.svg; do
+          for f in ${RT}tools/bt-site.cjs ${RT}tools/glyphs.svg; do
             [ -f "$f" ] || { echo "::error::$f is missing — the site cannot be rendered without the compiled core (app repo: npm run build:core)"; exit 1; }
           done
-          node tools/bt-site.cjs --selftest
+          node ${RT}tools/bt-site.cjs --selftest
 
-      # The public feed — every month file since the epoch, plus the PER-BOT
-      # corrections sheets the bots write and the app reads (us-overrides +
-      # eu-overrides; the root overrides.jsonl is a dead legacy). A 404 is a
-      # quiet month ONLY for the current month; a 404 or empty body for any
+      # THE SITE'S FIRST PATH SEGMENTS (the website split; the header's "MAIN RUN'S OWN
+      # GUARDS"). Main run only. LOUD, NEVER FATAL: US and EU never freeze over a
+      # repository somebody else must rename; and nothing here heals by itself. Read
+      # with the run's own token (public data; no secret). The root entries are this
+      # checkout's committed tree, with a page's extensionless address beside it (a
+      # repository named `about` takes /about); the run's own scratch folders are not
+      # the site's.
+      - name: Guard the site's first path segments
+        if: ${{ !inputs.legislature }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          git ls-tree --name-only HEAD > /tmp/root.txt
+          sed -n 's/[.]html$//p' /tmp/root.txt >> /tmp/root.txt
+          main="${GITHUB_REPOSITORY#*/}"
+          # Each GitHub read is bounded (20 s), as the feed's are: a stalled read is a
+          # guard that did not run this time, never a run held to its timeout.
+          ghbin=$(command -v gh)
+          gh() { timeout 20 "$ghbin" "$@"; }
+          if ! based=$(node tools/bt-site.cjs --list-legislatures | awk '{print $1}'); then
+            echo "::warning::the renderer could not list the legislatures, so the first-path-segment guards did not run (the fetch below says why)"
+            exit 0
+          fi
+          if pages=$(gh api --paginate "users/${GITHUB_REPOSITORY_OWNER}/repos?per_page=100" --jq '.[] | select(.has_pages) | .name'); then
+            for repo in $pages; do
+              if grep -qxF "$repo" /tmp/root.txt; then
+                echo "::error::the Pages-enabled repository ${repo} is named after a root entry of this site: GitHub serves it at billtracking.org/${repo}/ and hides this site's own /${repo} from every reader. Rename it, or switch its Pages off (its Settings > Pages). This run renders as normal; nothing heals this by itself."
+              elif [ "$repo" != "$main" ] && [ "$repo" != "billtracking-feed" ] && ! printf '%s\n' $based | grep -qxF "$repo"; then
+                echo "::warning::the Pages-enabled repository ${repo} is neither this site, the feed nor a launched legislature, and is served at billtracking.org/${repo}/, on the sign-in origin, where its scripts can read a signed-in reader's session (a legislature's repository created at its arming, before its registry row ships or while the row is marked unlaunched, is the designed case)."
+              fi
+            done
+            echo "Pages-enabled repositories: $(echo $pages)"
+          else
+            echo "::warning::could not list the account's repositories, so the shadow guard did not run this time"
+          fi
+          for id in $based; do
+            state=$(gh api "repos/${GITHUB_REPOSITORY_OWNER}/${id}/actions/workflows/permalinks.yml" --jq .state) || state="unreadable"
+            if [ "$state" = "active" ]; then
+              echo "${id}: its permalinks workflow is active"
+            elif [ "$state" = "disabled_manually" ]; then
+              echo "::error::the permalinks workflow in the legislature repository ${id} was switched off by hand: its pages are not rendered. A deliberate stop? When it is over, switch it on (gh workflow enable permalinks.yml -R ${GITHUB_REPOSITORY_OWNER}/${id}); the feed's render-site.yml leaves a workflow switched off by hand as it is. This run renders as normal."
+            else
+              echo "::error::the permalinks workflow in the legislature repository ${id} is ${state}, not active: its pages are not rendered, by the feed's dispatch or its own schedule. GitHub switches a public repository's schedule off after 60 days without activity; enable it (gh workflow enable permalinks.yml -R ${GITHUB_REPOSITORY_OWNER}/${id}) and look at the feed's render-site runs, which enable it before every dispatch. This run renders as normal."
+            fi
+          done
+          exit 0
+
+      # The public feed — every month file since each legislature's own first month,
+      # plus the PER-BOT corrections sheets the bots write and the app reads
+      # (us-overrides + eu-overrides; the root overrides.jsonl is a dead legacy). A
+      # 404 is a quiet month ONLY for the current month; a 404 or empty body for any
       # PAST month is an upstream failure. curl gets retries + a time budget;
       # its status is read on its own line so a transport error can never
       # concatenate into a bogus code.
+      # [2026-10-29, the website split] WHICH LEGISLATURES: the renderer's own list
+      # (--list-legislatures: `id prefix feedSince`), which replaced a hard-coded
+      # `for bot in us eu` and the FEED_EPOCH start month: each legislature is read
+      # from its feedSince, so a past month's 404 is fatal only from then on. The main
+      # run reads every launched legislature (the corrections log lists them all; a
+      # row registered ahead of its launch is left out, so its planned month passing
+      # is never a vanished one); a called run reads its own. A legislature with no
+      # month file yet has no sheet to read either; a called run for one ends green,
+      # "nothing to render", before anything is written. A legislature's fault fails
+      # the main run as it fails its own: the log is left as published, never drawn
+      # without a legislature's rows, and no legislature's pages wait on this run.
       - name: Fetch the published feed
+        id: fetch
         env:
           FEED: https://feed.billtracking.org
         run: |
@@ -139,13 +278,17 @@ jobs:
             out=$(curl -sSL --retry 3 --retry-all-errors --max-time 60 -o "$2" -w '\n%{http_code}' "$1" 2>/dev/null) || { echo 000; return; }
             printf '%s\n' "$out" | tail -n1
           }
-          y=2026; m=7   # FEED_EPOCH 2026-07 (app feed-client.ts) — nothing older exists
+          node ${RT}tools/bt-site.cjs --list-legislatures ${LEG:+--legislature "$LEG"} > legislatures.txt
+          echo "legislatures this run reads:"; sed 's/^/  /' legislatures.txt
           now_y=$(date -u +%Y); now_m=$(date -u +%-m)
-          while [ "$y" -lt "$now_y" ] || { [ "$y" -eq "$now_y" ] && [ "$m" -le "$now_m" ]; }; do
-            mm=$(printf '%02d' "$m")
-            current=0; [ "$y" -eq "$now_y" ] && [ "$m" -eq "$now_m" ] && current=1
-            for bot in us eu; do
-              f="${bot}-${y}-${mm}.jsonl"
+          while read -r bot prefix since <&3; do
+            [ -n "$bot" ] || continue
+            y=${since%-*}; m=$((10#${since#*-}))   # its feedSince (app legislatures.ts) — nothing older exists
+            got=0
+            while [ "$y" -lt "$now_y" ] || { [ "$y" -eq "$now_y" ] && [ "$m" -le "$now_m" ]; }; do
+              mm=$(printf '%02d' "$m")
+              current=0; [ "$y" -eq "$now_y" ] && [ "$m" -eq "$now_m" ] && current=1
+              f="${prefix}${y}-${mm}.jsonl"
               code=$(fetch "$FEED/$f" "feed/$f")
               if [ "$code" = "404" ]; then
                 rm -f "feed/$f"
@@ -156,16 +299,46 @@ jobs:
                 lines=$(grep -c . "feed/$f" || true)
                 if [ "$lines" -eq 0 ] && [ "$current" = "0" ]; then echo "::error::$f is EMPTY (200, 0 lines) — a past month cannot be empty"; exit 1; fi
                 echo "got $f ($lines lines)"
+                got=$((got+1))
               fi
+              m=$((m+1)); if [ "$m" -gt 12 ]; then m=1; y=$((y+1)); fi
             done
-            m=$((m+1)); if [ "$m" -gt 12 ]; then m=1; y=$((y+1)); fi
-          done
-          for bot in us eu; do
-            code=$(fetch "$FEED/${bot}-overrides.jsonl" "feed/${bot}-overrides.jsonl")
-            [ "$code" = "200" ] || { echo "::error::${bot}-overrides.jsonl returned $code"; exit 1; }
-            echo "${bot}-overrides: $(grep -c . "feed/${bot}-overrides.jsonl" || true) lines"
-          done
+            if [ "$got" -eq 0 ]; then echo "${bot} has published no month file yet: no corrections sheet to read"; continue; fi
+            code=$(fetch "$FEED/${prefix}overrides.jsonl" "feed/${prefix}overrides.jsonl")
+            [ "$code" = "200" ] || { echo "::error::${prefix}overrides.jsonl returned $code"; exit 1; }
+            echo "${bot}-overrides: $(grep -c . "feed/${prefix}overrides.jsonl" || true) lines"
+          done 3< legislatures.txt
+          if [ -n "$LEG" ] && [ "$(ls feed/${LEG}-20*.jsonl 2>/dev/null | wc -l)" -eq 0 ]; then
+            echo "nothing to render: ${LEG} has published no month file yet"
+            echo "render=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           [ "$(ls feed/*-20*.jsonl 2>/dev/null | wc -l)" -gt 0 ] || { echo "::error::no feed files at all — refusing to render an empty site"; exit 1; }
+          echo "render=true" >> "$GITHUB_OUTPUT"
+
+      # [2026-10-29, the website split] A LEGISLATURE WITH NOTHING TO RENDER YET STILL SERVES ITS FEED PAGE. From
+      # its arming its repository answers /<id>/ with its feed page (which reads the feed live, and says so while
+      # the feed is empty) and /<id>/<anything> with the 404 page's resolver, as every legislature's does; the
+      # charter's step checks both before the first post. So the files a reader's browser needs there are written
+      # and published on their own, from this repository's checkout, the same as on every render.
+      - name: Publish the feed page of a legislature with no post yet
+        if: inputs.legislature && steps.fetch.outputs.render == 'false'
+        run: |
+          set -euo pipefail
+          : > .nojekyll
+          cp renderer/404.html 404.html
+          python3 renderer/tools/build_feed_pages.py --legislature "$LEG" --out .
+          git config user.name "billtracking-permalinks"
+          git config user.email "permalinks@billtracking.org"
+          git add .nojekyll 404.html index.html
+          if git diff --cached --quiet; then echo "the feed page is published and unchanged"; exit 0; fi
+          git commit -q -m "permalinks ($LEG): the feed page, before the first post"
+          for attempt in 1 2 3; do
+            if git push -q; then echo "published the feed page"; exit 0; fi
+            echo "push rejected (attempt $attempt) — rebasing onto the new head"
+            git pull --rebase -q || { echo "::error::rebase failed"; exit 1; }
+          done
+          echo "::error::could not push after 3 attempts"; exit 1
 
       # BILL-PATH ARTIFACTS. The bill pages (/b/) show the same full procedural
       # record the app's bill screen shows, which lives in per-bill artifacts at
@@ -179,13 +352,15 @@ jobs:
       #    artifact may EXIST but we couldn't fetch it, and rendering posts-only
       #    would falsely say "not published yet" — so FAIL the run (loudness
       #    doctrine: never publish a page we can't stand behind). Bots untouched.
+      # A legislature's run alone: the main run writes no bill page.
       - name: Fetch bill-path artifacts
+        if: steps.fetch.outputs.render == 'true' && inputs.legislature
         env:
           FEED: https://feed.billtracking.org
         run: |
           set -euo pipefail
           mkdir -p paths
-          node tools/bt-site.cjs --feed feed --list-paths > paths.txt
+          node ${RT}tools/bt-site.cjs --feed feed --list-paths > paths.txt
           echo "bills needing a path artifact: $(grep -c . paths.txt || true)"
           while read -r name; do
             [ -n "$name" ] || continue
@@ -210,17 +385,22 @@ jobs:
       # at COLUMN 0, which is where GitHub's parser reads them: nothing needs
       # re-emitting the way the Python logger's level prefix did.
       - name: Render the pages
+        if: steps.fetch.outputs.render == 'true'
         run: |
           set -euo pipefail
           mkdir -p out
           # A post carries its own summary (the app's DECISIONS D42, 2026-10-23), so the
-          # renderer reads no summary file.
-          node tools/bt-site.cjs --feed feed --paths paths --out out
+          # renderer reads no summary file. [2026-10-29, the website split] A called run
+          # renders its legislature's own site (--legislature, with its path artifacts);
+          # the main run, the corrections log and the forwarding pages.
+          node ${RT}tools/bt-site.cjs ${LEG:+--legislature "$LEG" --paths paths} --feed feed --out out
+          # A legislature whose first posts name no bill has no out/b yet; its posts still publish.
+          mkdir -p out/b
           n=$(ls out/p/*.html | grep -vc 'index.html' || true)
           b=$(find out/b -type f -name '*.html' ! -name index.html | wc -l)
-          echo "rendered $n post pages, $b bill pages"
+          if [ -n "$LEG" ]; then echo "rendered $n post pages, $b bill pages"; else echo "rendered $n post and $b bill forwarding pages"; fi
           [ "$n" -gt 0 ] || { echo "::error::the renderer produced no post pages"; exit 1; }
-          [ -d out/view/v1 ] || { echo "::error::the renderer produced no view/ tree"; exit 1; }
+          if [ -n "$LEG" ]; then [ -d out/view/v1 ] || { echo "::error::the renderer produced no view/ tree"; exit 1; }; fi
           # The corrections log is written on EVERY run, empty or not — it is a
           # standing promise (the accuracy page points a reader at it, and
           # terms.md's "logged publicly" promise resolves through it), and a
@@ -242,7 +422,10 @@ jobs:
           # needs it). The commit step leaves any already-published `corrections/`
           # untouched when this render produced none — D17's rule for pages
           # applies to it too.
-          if [ -f out/corrections/index.html ]; then
+          # [2026-10-29, the website split] The main run's alone: a called run writes no log.
+          if [ -n "$LEG" ]; then
+            echo "a legislature's own site carries no corrections log (the main site's lists its corrections)"
+          elif [ -f out/corrections/index.html ]; then
             echo "rendered the corrections log"
           else
             echo "::error::the renderer produced no /corrections/ page — this repo's tools/bt-site.cjs predates it. Rebuild and commit the renderer. The other trees are published as normal and any already-published corrections/ is left as it is."
@@ -269,22 +452,45 @@ jobs:
           # the pages are still trustworthy — they are the record, rendered
           # correctly — and freezing /p/ and /b/ over a cache-buster would be a
           # blast radius nothing justifies.
+          # [2026-10-29, the website split] A legislature's run alone: the main run's pages
+          # forward and load no stylesheet. The carrier is the 404 page in renderer/ (the
+          # same commit of main the site serves), which every legislature's repository
+          # copies; it was this repository's us.html, which moved to the US's own.
           gen=$(grep -o 'feed[.]css?v=[0-9]*' out/p/*.html 2>/dev/null | head -1 | grep -o '[0-9]*$' || true)
-          carrier=$(grep -o 'feed[.]css?v=[0-9]*' us.html 2>/dev/null | head -1 | grep -o '[0-9]*$' || true)
-          if [ -n "$gen" ] && [ -n "$carrier" ] && [ "$gen" != "$carrier" ]; then
+          carrier=$(grep -o 'feed[.]css?v=[0-9]*' ${RT}404.html 2>/dev/null | head -1 | grep -o '[0-9]*$' || true)
+          if [ -z "$LEG" ]; then
+            echo "the main run's pages forward and load no stylesheet: nothing to compare"
+          elif [ -n "$gen" ] && [ -n "$carrier" ] && [ "$gen" != "$carrier" ]; then
             echo "::error::the renderer stamps feed.css?v=$gen while the hand-written pages ask for v=$carrier — tools/bt-site.cjs predates the stylesheet change. Rebuild it (npm run build:core && npm run copy:site in the app repo) and commit it. The pages published by this run are correct in every other respect; only their cache-buster is behind."
           else
             echo "stylesheet version: renderer v${gen:-?}, carriers v${carrier:-?}"
           fi
 
-      # Publish = replace p/, b/ AND view/ wholesale + the bill sitemap. All three
-      # trees are TRACKED but written by this job alone (only generated files live
-      # there; guarded), so the replace is safe. b/ is the SEO bill pages ONLY — a
-      # SEPARATE tree from the app's own web export (bill/[ref].html), which this
-      # job never touches. Then commit with the built-in token.
+      # Publish = replace p/ and b/ wholesale, and on a legislature's run view/ and the
+      # bill sitemap too. The trees are TRACKED but written by this job alone (only
+      # generated files live there; guarded), so the replace is safe. b/ is the SEO bill
+      # pages ONLY (or, on the main run, their forwarding pages) — a SEPARATE tree from the
+      # app's own web export (bill/[ref].html), which this job never touches. Then commit
+      # with the built-in token.
       - name: Commit the pages
+        if: steps.fetch.outputs.render == 'true'
         run: |
           set -euo pipefail
+          # [2026-10-29, the website split] ONE SHAPE PER KIND OF RUN. The main run's
+          # forwarding pages for bills are b/<polity>/<slug>.html, the addresses the US's
+          # and the EU's bills had; a legislature's own pages are b/<slug>.html (its id is
+          # the polity), and its suppression manifest names them by key, <polity>/<slug>.
+          # p/ is one shape in both; view/ is a legislature's alone.
+          if [ -z "$LEG" ]; then
+            bpat='^b/[a-z0-9]{2,12}/([a-z0-9][a-z0-9-]*\.html|index\.html)$'; keypfx=''
+          else
+            bpat='^b/([a-z0-9][a-z0-9-]*\.html|index\.html)$'; keypfx="${LEG}/"
+            # A legislature's repository holds the caller workflow and what this job
+            # writes, nothing else: a hand-placed file is refused, never deleted.
+            stray=$(git ls-tree --name-only HEAD | grep -Evx '[.]github|[.]nojekyll|404[.]html|index[.]html|p|b|view|bill-sitemap[.]xml' || true)
+            [ -z "$stray" ] || { echo "::error::this legislature's repository holds files this workflow does not write — refusing to publish over them: $stray"; exit 1; }
+            [ ! -e corrections ] || { echo "::error::this legislature's repository holds a corrections/ folder: the one public corrections log is the main site's — refusing to publish"; exit 1; }
+          fi
           # p/ and b/ must contain ONLY generated files. Anything else = someone
           # hand-placed a file there; refuse rather than silently delete it.
           if [ -d p ]; then
@@ -292,7 +498,7 @@ jobs:
             [ -z "$stray" ] || { echo "::error::p/ contains non-generated files — refusing to replace it: $stray"; exit 1; }
           fi
           if [ -d b ]; then
-            stray=$(find b -type f | grep -Ev '^b/[a-z0-9]{2,12}/([a-z0-9][a-z0-9-]*\.html|index\.html)$' || true)
+            stray=$(find b -type f | grep -Ev "$bpat" || true)
             [ -z "$stray" ] || { echo "::error::b/ contains unexpected files — refusing to replace it: $stray"; exit 1; }
           fi
           # corrections/ is workflow-owned too, and holds exactly one file.
@@ -303,7 +509,7 @@ jobs:
           # view/ is workflow-owned too — the published packaged form of this same
           # render (plan §12(1)). Same rule as p/ and b/: anything else in there
           # was hand-placed, and this job refuses rather than silently deleting it.
-          if [ -d view ]; then
+          if [ -n "$LEG" ] && [ -d view ]; then
             stray=$(find view -type f | grep -Ev '^view/v1/([a-z]{2,12}-[0-9]{4}-[0-9]{2}\.json|index\.json|registry\.json|bills/[a-z0-9]{2,12}/[a-z0-9][a-z0-9-]*\.json)$' || true)
             [ -z "$stray" ] || { echo "::error::view/ contains unexpected files — refusing to replace it: $stray"; exit 1; }
           fi
@@ -336,7 +542,7 @@ jobs:
               <( (cd out/b && find . -type f -name '*.html' ! -name index.html) | sed 's|^\./||; s|\.html$||' | sort ) \
             | while IFS= read -r slug; do
                 [ -n "$slug" ] || continue
-                grep -qxF "$slug" out/.suppressed-bills 2>/dev/null \
+                grep -qxF "${keypfx}${slug}" out/.suppressed-bills 2>/dev/null \
                   || { echo "::error::/b/ lost ${slug}.html and it is NOT a sanctioned removal — upstream gap, refusing to publish"; exit 1; }
               done
           fi
@@ -350,7 +556,7 @@ jobs:
           # manifest — `.suppressed-bills` holds `<polity>/<slug>`, which is
           # exactly what `v1/bills/<polity>/<slug>.json` reduces to. A month file
           # or the two roots have no sanctioned way to vanish at all.
-          if [ -d view ]; then
+          if [ -n "$LEG" ] && [ -d view ]; then
             comm -23 \
               <( (cd view && find . -type f -name '*.json') | sed 's|^\./||' | sort ) \
               <( (cd out/view && find . -type f -name '*.json') | sed 's|^\./||' | sort ) \
@@ -365,10 +571,10 @@ jobs:
           fi
           new=$(ls out/p/*.html | grep -vc index.html || true)
           newb=$(find out/b -type f -name '*.html' ! -name index.html | wc -l)
-          rm -rf p b view
+          rm -rf p b
           cp -r out/p p
           cp -r out/b b
-          cp -r out/view view
+          if [ -n "$LEG" ]; then rm -rf view; cp -r out/view view; fi
           # corrections/ is replaced only when THIS render produced it. A renderer
           # that predates the page (the ::error:: above) must not take the
           # published log down with it: nothing published ever leaves.
@@ -376,10 +582,22 @@ jobs:
             rm -rf corrections
             cp -r out/corrections corrections
           fi
-          cp out/bill-sitemap.xml bill-sitemap.xml
+          # [2026-10-29, the website split] A legislature's own site also needs its bill
+          # sitemap and the files a
+          # reader's browser asks for there, written from the main repository on every run
+          # so none can drift: .nojekyll (Pages serves the tree as it is), 404.html (copied:
+          # its root-relative script and styles resolve to the main site, so the 404
+          # resolver boots there) and index.html, the feed page.
+          if [ -n "$LEG" ]; then
+            cp out/bill-sitemap.xml bill-sitemap.xml
+            : > .nojekyll
+            cp renderer/404.html 404.html
+            python3 renderer/tools/build_feed_pages.py --legislature "$LEG" --out .
+          fi
           git config user.name "billtracking-permalinks"
           git config user.email "permalinks@billtracking.org"
-          git add -A p b view bill-sitemap.xml
+          git add -A p b
+          if [ -n "$LEG" ]; then git add -A view bill-sitemap.xml .nojekyll 404.html index.html; fi
           # corrections/ is OPTIONAL in this pathspec. `git add` treats a pathspec
           # that matches nothing as fatal (exit 128), and under `set -euo pipefail`
           # that would take the WHOLE publish down — freezing p/, b/, view/ and the
@@ -415,9 +633,13 @@ jobs:
           # view/v1/index.json's stamp marks the LAST PUBLISH (2026-08-20: view consumers
           # get a fresh built_at whenever anything real changes). The loop above put back
           # its old copy if only the stamp moved, so a real publish takes the fresh one.
-          cp out/view/v1/index.json view/v1/index.json
-          git add view/v1/index.json
-          git commit -q -m "permalinks: render $new post + $newb bill pages from the published feed"
+          if [ -n "$LEG" ]; then
+            cp out/view/v1/index.json view/v1/index.json
+            git add view/v1/index.json
+            git commit -q -m "permalinks ($LEG): render $new post + $newb bill pages from the published feed"
+          else
+            git commit -q -m "permalinks: the corrections log, and $new post + $newb bill forwarding pages, from the published feed"
+          fi
           # The repo also takes owner pushes; a race is ordinary. p/, b/,
           # corrections/ and view/ are ours alone, so a rebase can never conflict
           # with a hand-authored file. A 15-minute cadence makes the race
