@@ -736,6 +736,8 @@ button[disabled],
 .card-expander .glyph { width: 15px; height: 15px; stroke-width: 2.2; }
 .card-expander[hidden] { display: none; }
 
+.card-expander[data-await] { visibility: hidden; }
+
 .bt-docket .card-expander[data-advanced] { margin-top: 12px; }
 
 .bt-docket .card-expander { position: relative; left: calc(1px + 0.6rem); }
