@@ -126,8 +126,12 @@ to be asserted across two languages; it is now true by construction.
 1. **`/p/` shows the COMPOSED CARD** — the same card the app and the feed pages
    draw — with the archived post text beneath it in a collapsed
    "As published" block (owner call). The Python page showed the archived text
-   alone. The card ships open and draws no expander: a static page has no script
-   to operate one, and a dead control is a fabricated affordance.
+   alone. The card ships open, and its "Show less" ships `hidden`: a dead control
+   is a fabricated affordance, so only the page's script shows it, where the card
+   has a summary or a list to fold, as the app's post screen does.
+   *[2026-11-05, app OPEN-ITEMS OI-0359: this read "The card ships open and draws no expander: a static page has
+   no script to operate one, and a dead control is a fabricated affordance." The page has run a script since
+   (the votes, the bell, the ⋯ menu); the app's `dom.ts` `wireOwnCards` now shows the control.]*
    *[2026-10-15, app OPEN-ITEMS OI-0290: the "As published" block, the link row
    and the grey note are gone from `/p/` by the owner's ruling; the page is the
    card, then the app offer. The record files still keep the text as it went out.]*
