@@ -9,7 +9,7 @@ htmlTitle: Privacy
 description: What BillTracking collects, why, and how to delete it. No analytics, trackers or visitor logs anywhere, and anything a page keeps stays on your device. An account allows one vote per person on each bill and keeps your followed bills and settings the same across your devices.
 ogTitle: Privacy
 ogDescription: A live, source-linked record of lawmaking
-updated: 31 October 2026
+updated: 7 November 2026
 ---
 
 In short: **this website has no analytics or trackers of any kind, and we receive no visitor logs.** Anything a page keeps for you, such as the filter you set on a feed page or your sign-in session, stays in your browser on your device. You don't need an account to read anything in the app. An account does three things. It allows one vote per person on each bill. It keeps your followed bills and docket keywords the same on every device you sign in on. And it keeps your settings the same on every device. You can delete it in two taps, in the app or on your account page on this website.
@@ -19,7 +19,7 @@ In short: **this website has no analytics or trackers of any kind, and we receiv
 
 This site has no analytics on any page. There is no Google Analytics, no Cloudflare, no pixel, no tag manager, no advertising and no tracking SDK of any kind. We don't record what you read in the feed or on bill pages, what you search for, or where you came from. We don't sell or share anything about you, and we don't build a profile of you.
 
-Some pages keep things for you on purpose, mostly the feed pages ([/us](/us) and [/eu](/eu)). A page may keep the posts it has already shown you (so it opens quickly next time), the filter you set on a feed page, and your sign-in session if you sign in. Anything a page keeps stays **in your browser on your device**, and none of it is sent to us. The one exception is a location you set before your first vote: it waits in your browser until you vote, and is then saved to your account. We are not told which pages you opened, what you read, or where you came from. The only things this website ever sends from your device are a vote you choose to cast and, if you sign in, the bills you follow, your docket keywords, your settings and what you do in your notifications list. These are described below.
+Some pages keep things for you on purpose, mostly the feed pages ([/us](/us) and [/eu](/eu)). A page may keep the posts it has already shown you and the data needed to search them, so it loads faster. It may also keep the filter you set on a feed page, and your sign-in session if you sign in. Anything a page keeps stays **in your browser on your device**, and none of it is sent to us. The one exception is a location you set before your first vote: it waits in your browser until you vote, and is then saved to your account. We are not told which pages you opened, what you read, or where you came from. The only things this website ever sends from your device are a vote you choose to cast and, if you sign in, the bills you follow, your docket keywords, your settings and what you do in your notifications list. These are described below.
 
 One caveat: the site is hosted on **GitHub Pages**, and every web host has to handle your IP address at the network level to send you a page. GitHub does not show us those logs and we have never seen them. But we can't say that no IP address is processed anywhere, because that would not be true.
 
@@ -27,6 +27,16 @@ One caveat: the site is hosted on **GitHub Pages**, and every web host has to ha
 ## Reading in the app
 
 The feed and bill timelines work without signing in. The app and this website both load the published record as static files from GitHub Pages, which also hosts this site. Reading the feed and bill pages, and searching, sends nothing back to us. When you are signed in, your saved filters, display settings and docket keywords are kept with your account, so the app and this website show you the same set-up. When you are signed out, nothing is kept about you. You need an account to follow a bill. Your follow list is kept with your account, so the app and this website show you the same bills. It is only a list of bills, and deleting your account deletes it.
+
+**Search and older posts.** Search is performed on your device. Your search terms are not sent to us or to anyone else. The app downloads the data needed for search in the background when it opens.
+
+To keep the app fast, some older posts are downloaded only when you need them, for example when they appear in search results, when you scroll back to them, or when you open a link to them. These posts are downloaded from GitHub Pages, the service that hosts the rest of the feed, and are stored on your device. When stored posts exceed a size limit, the posts you have used least recently are removed.
+
+On the website, the data needed for search is downloaded once a feed page has loaded, or, if your browser's data saver is on, the first time you select its search box. Other pages download it only when they need it to show an older post, for example in Your votes or your notifications.
+
+When a month of posts is downloaded, GitHub receives the request, including your IP address and the time of the request. GitHub does not receive your search terms. However, for a very specific search, the month requested could indicate what you searched for.
+
+The posts your device downloads also depend on which legislatures you have turned on, and on any legislature where you have voted on or follow a bill.
 
 **Notifications.** If you have an account, we keep your notifications for 30 days so you can see them wherever you sign in. We also store which ones you have read, when you last opened the list, and when you last turned on a notification setting or a legislature. A notification you delete is gone for good. Your notifications are not backed up, and they are deleted with your account.
 
@@ -94,6 +104,8 @@ BillTracking is an independent project run by one person, not a company. The dat
 ### Changes
 
 If we change how any of this works, we will update this page and change the date below. We will not quietly start collecting something this page says we do not collect.
+
+**7 November 2026.** Search now covers every post. The data it needs is downloaded to your device, by the app in the background and by this website once a feed page has loaded, and some older posts are downloaded only when you need them. This page now says so, and what GitHub, which hosts the feed, receives when they are. Your search terms never leave your device. Nothing about what we collect changed.
 
 **31 October 2026.** This page is reworded in plainer language, with new headings. Nothing about what is collected or how it is handled changed. The what-exists-today note is removed: it said which parts of BillTracking were live rather than what we collect, and it had gone out of date (it still said the app was in closed testing, which ended in September). Two descriptions were corrected. Votes are described as for or against instead of thumbs up or down, which the app does not use. And the page now says that a location you set on this website before your first vote waits in your browser until you vote, and is then saved to your account.
 
