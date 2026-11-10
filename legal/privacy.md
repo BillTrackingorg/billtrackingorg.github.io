@@ -9,7 +9,7 @@ htmlTitle: Privacy
 description: What BillTracking collects, why, and how to delete it. No analytics, trackers or visitor logs anywhere, and anything a page keeps stays on your device. An account allows one vote per person on each bill and keeps your followed bills and settings the same across your devices.
 ogTitle: Privacy
 ogDescription: A live, source-linked record of lawmaking
-updated: 7 November 2026
+updated: 10 November 2026
 ---
 
 In short: **this website has no analytics or trackers of any kind, and we receive no visitor logs.** Anything a page keeps for you, such as the filter you set on a feed page or your sign-in session, stays in your browser on your device. You don't need an account to read anything in the app. An account does three things. It allows one vote per person on each bill. It keeps your followed bills and docket keywords the same on every device you sign in on. And it keeps your settings the same on every device. You can delete it in two taps, in the app or on your account page on this website.
@@ -33,6 +33,8 @@ The feed and bill timelines work without signing in. The app and this website bo
 To keep the app fast, some older posts are downloaded only when you need them, for example when they appear in search results, when you scroll back to them, or when you open a link to them. These posts are downloaded from GitHub Pages, the service that hosts the rest of the feed, and are stored on your device. When stored posts exceed a size limit, the posts you have used least recently are removed.
 
 On the website, the data needed for search is downloaded once a feed page has loaded, or, if your browser's data saver is on, the first time you select its search box. Other pages download it only when they need it to show an older post, for example in Your votes or your notifications.
+
+**Android backups.** The Android app is set so that what it keeps on your phone is not copied to your Google backup.
 
 When a month of posts is downloaded, GitHub receives the request, including your IP address and the time of the request. GitHub does not receive your search terms. However, for a very specific search, the month requested could indicate what you searched for.
 
@@ -104,6 +106,8 @@ BillTracking is an independent project run by one person, not a company. The dat
 ### Changes
 
 If we change how any of this works, we will update this page and change the date below. We will not quietly start collecting something this page says we do not collect.
+
+**10 November 2026.** What the Android app keeps on your phone is no longer copied to your Google backup, and this page now says so. Nothing about what is collected changed.
 
 **7 November 2026.** Search now covers every post. The data it needs is downloaded to your device, by the app in the background and by this website once a feed page has loaded, and some older posts are downloaded only when you need them. This page now says so, and what GitHub, which hosts the feed, receives when they are. Your search terms never leave your device. Nothing about what we collect changed.
 
