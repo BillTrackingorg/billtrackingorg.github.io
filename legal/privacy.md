@@ -94,7 +94,7 @@ Counts that were already published, in a post or in a file someone downloaded, a
 - **Legislators.** The feeds republish the official legislative record, which names Members of Congress and MEPs and records how they voted and what they sponsored. This is public record, and we republish it on the basis of a legitimate interest in making the legislative process something people can follow.
 - **We sell nothing and share nothing.** We have no advertisers, sponsors, data brokers or "partners", and no revenue.
 - **Children.** The app is not directed at children and we do not knowingly collect anything from them.
-- **AI.** No post is written by AI. The dates, vote tallies, bill numbers and procedural facts in a post's own lines are copied from the official record. When a post has a summary, it is the legislature's own official summary, quoted word for word. Beside it, you can read a plain-English version of that summary, written by AI (Anthropic's Claude). To write it, we send Anthropic the official summary's public text and our instructions for the summary, and nothing about you or about what you read.
+- **AI.** No post is written by AI. The dates, vote tallies, bill numbers and procedural facts in a post's own lines are copied from the official record. When a post has a summary, it is the legislature's own official summary, quoted word for word. Where a post shows a plain-English version of that summary, it is written by AI (Anthropic's Claude). To write it, we send Anthropic the official summary's public text and our instructions for the summary, and nothing about you or about what you read.
 
 ### Your rights
 

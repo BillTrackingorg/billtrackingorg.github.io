@@ -17,7 +17,7 @@ BillTracking republishes the official legislative record of the US Congress and 
 ^The basics
 ## What BillTracking is
 
-BillTracking is a set of automated feeds and an app that report steps in the legislative process. The information comes from official sources: Congress.gov, the European Parliament's open data, the Publications Office and the OEIL Legislative Observatory. When a post has a summary, it is the legislature's own official summary, quoted word for word under its source's name. We do not write or edit official summaries. Beside one, you can read a plain-English version of it, written by AI from the official summary alone and marked as such. A summary is a short description, not the bill. It can simplify or leave out details that matter, and it describes one version of the bill, which may have changed since. The procedural facts, dates and vote tallies in a post's own lines are copied from the record.
+BillTracking is a set of automated feeds and an app that report steps in the legislative process. The information comes from official sources: Congress.gov, the European Parliament's open data, the Publications Office and the OEIL Legislative Observatory. When a post has a summary, it is the legislature's own official summary, quoted word for word under its source's name. We do not write or edit official summaries. Where a post shows a plain-English version of one, it is written by AI from the official summary's words alone and marked as such. A summary is a short description, not the bill. It can simplify or leave out details that matter, and it describes one version of the bill, which may have changed since. The procedural facts, dates and vote tallies in a post's own lines are copied from the record.
 
 >! **This is not legal advice, and it is not the official record.** It is a convenience built on public sources, and every post links to its source. **If a decision matters, for example legally, professionally or financially, read the source, not us.** For legal advice, speak to a qualified lawyer.
 
@@ -61,7 +61,7 @@ The service is provided as-is. To the extent the law allows, we are not liable f
 
 We may update these terms. If we change something that matters, we will say so on this page and update the date. If you keep using the service after a change, that means you accept it. If you don't want to, you can stop using it and delete your account.
 
-**11 November 2026.** Beside an official summary, you can now read a plain-English version of it written by AI. “What BillTracking is” and “Errors” say so, and “Errors” says that one found to be wrong is withdrawn and listed in the corrections log. Nothing else here changed.
+**11 November 2026.** “What BillTracking is” and “Errors” now say that a plain-English version of an official summary, where a post shows one, is written by AI and marked as such, that it can contain mistakes, and that one found to be wrong is withdrawn and listed in the corrections log. Nothing else here changed.
 
 **1 November 2026.** The note that this is not legal advice now adds: for legal advice, speak to a qualified lawyer. Nothing else here changed.
 
