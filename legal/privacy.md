@@ -94,7 +94,7 @@ Counts that were already published, in a post or in a file someone downloaded, a
 - **Legislators.** The feeds republish the official legislative record, which names Members of Congress and MEPs and records how they voted and what they sponsored. This is public record, and we republish it on the basis of a legitimate interest in making the legislative process something people can follow.
 - **We sell nothing and share nothing.** We have no advertisers, sponsors, data brokers or "partners", and no revenue.
 - **Children.** The app is not directed at children and we do not knowingly collect anything from them.
-- **AI.** Nothing in a post is written by AI. The dates, vote tallies, bill numbers and procedural facts in a post's own lines are copied from the official record. When a post has a summary, it is the legislature's own official summary, quoted word for word.
+- **AI.** No post is written by AI. The dates, vote tallies, bill numbers and procedural facts in a post's own lines are copied from the official record. When a post has a summary, it is the legislature's own official summary, quoted word for word. Beside it, you can read a plain-English version of that summary, written by AI (Anthropic's Claude). To write it, we send Anthropic the official summary's public text and our instructions for the summary, and nothing about you or about what you read.
 
 ### Your rights
 
@@ -109,6 +109,8 @@ BillTracking is an independent project run by one person, not a company. The dat
 ### Changes
 
 If we change how any of this works, we will update this page and change the date below. We will not quietly start collecting something this page says we do not collect.
+
+**11 November 2026.** The AI line now says that a plain-English version of the official summary is written by AI, and that to write it we send Anthropic the summary's public text and nothing about you. Nothing about what is collected or how it is handled changed.
 
 **11 November 2026.** When you vote with a country set, your vote now also keeps a yes or no: whether your internet connection came from that country, worked out from its IP address at that moment. Neither the address nor that country is stored with the vote. We took out "nobody checks it" where this page lists what a vote record holds, since this compares your connection's country with the one you set. The place your vote is counted under is still the one you choose.
 
