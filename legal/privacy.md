@@ -9,7 +9,7 @@ htmlTitle: Privacy
 description: What BillTracking collects, why, and how to delete it. No analytics, trackers or visitor logs anywhere, and anything a page keeps stays on your device. An account allows one vote per person on each bill and keeps your followed bills and settings the same across your devices.
 ogTitle: Privacy
 ogDescription: A live, source-linked record of lawmaking
-updated: 10 November 2026
+updated: 11 November 2026
 ---
 
 In short: **this website has no analytics or trackers of any kind, and we receive no visitor logs.** Anything a page keeps for you, such as the filter you set on a feed page or your sign-in session, stays in your browser on your device. You don't need an account to read anything in the app. An account does three things. It allows one vote per person on each bill. It keeps your followed bills and docket keywords the same on every device you sign in on. And it keeps your settings the same on every device. You can delete it in two taps, in the app or on your account page on this website.
@@ -55,7 +55,8 @@ You can vote for or against a bill (Yea or Nay on US bills). A reader's position
 
 - **You need to sign in with Google or Apple to vote. You don't need to sign in to read.** The account is what allows one vote per person on each bill. Without it, the counts would mean nothing.
 - **From the sign-in, the only things we act on are an account identifier and an email address.** If you use Sign in with Apple and choose *Hide My Email*, we only see Apple's relay address.
-- **A vote record is made up of the bill, whether you voted for or against, when you voted, and a country (and for the US, a state) only if you choose to set one.** The location is optional, you choose it yourself, and nobody checks it. Leaving it unset is a normal way to use the app, and everything still works.
+- **A vote record is made up of the bill, whether you voted for or against, when you voted, and a country (and for the US, a state) only if you choose to set one.** The location is optional and you choose it yourself. It is the place your vote is counted under, and we never correct it. Leaving it unset is a normal way to use the app, and everything still works.
+- **If you set a country, your vote also keeps a yes or no: did your internet connection come from that country when you voted?** Our database provider tells us which country a connection comes from. We keep only the yes or no, never your IP address or the connection's country. It never blocks or changes a vote, and it is never shown or published. A no is normal, for example on a VPN or when you live abroad. We only look at the totals, to notice coordinated campaigns.
 - **We never publish who voted which way, show it to anyone, or attach it to a profile.** There are no public profiles and no public vote histories. Your own votes are shown only to you, on the Your votes page in the app and on this website, where you can change or withdraw any of them. What we publish is counts: how many voted each way overall, and how many from each country or state.
 - **You can change or withdraw a vote at any time, or withdraw all your votes at once.** Deleting your account deletes every vote with it.
 
@@ -106,6 +107,8 @@ BillTracking is an independent project run by one person, not a company. The dat
 ### Changes
 
 If we change how any of this works, we will update this page and change the date below. We will not quietly start collecting something this page says we do not collect.
+
+**11 November 2026.** When you vote with a country set, your vote now also keeps a yes or no: whether your internet connection came from that country. We keep only that answer, never your IP address. The place you choose is still the place your vote is counted under.
 
 **10 November 2026.** What the Android app keeps on your phone is no longer copied to your Google backup, and this page now says so. Nothing about what is collected changed.
 
