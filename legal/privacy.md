@@ -17,9 +17,9 @@ In short: **this website has no analytics or trackers of any kind, and we receiv
 ^billtracking.org
 ## The website
 
-This site has no analytics on any page. There is no Google Analytics, no Cloudflare, no pixel, no tag manager, no advertising and no tracking SDK of any kind. We don't record what you read in the feed or on bill pages, what you search for, or which site sent you here. We don't sell or share anything about you, and we don't build a profile of you.
+This site has no analytics on any page. There is no Google Analytics, no Cloudflare, no pixel, no tag manager, no advertising and no tracking SDK of any kind. We don't record what you read in the feed or on bill pages, what you search for, or which site sent you to BillTracking. We don't sell or share anything about you, and we don't build a profile of you.
 
-Some pages keep things for you on purpose, mostly the feed pages ([/us](/us) and [/eu](/eu)). A page may keep the posts it has already shown you and the data needed to search them, so it loads faster. It may also keep the filter you set on a feed page, and your sign-in session if you sign in. Anything a page keeps stays **in your browser on your device**, and none of it is sent to us. The one exception is a location you set before your first vote: it waits in your browser until you vote, and is then saved to your account. We are not told which pages you opened, what you read, or which site sent you here. The only things this website ever sends from your device are a vote you choose to cast and, if you sign in, the bills you follow, your docket keywords, your settings and what you do in your notifications list. These are described below.
+Some pages keep things for you on purpose, mostly the feed pages ([/us](/us) and [/eu](/eu)). A page may keep the posts it has already shown you and the data needed to search them, so it loads faster. It may also keep the filter you set on a feed page, and your sign-in session if you sign in. Anything a page keeps stays **in your browser on your device**, and none of it is sent to us. The one exception is a location you set before your first vote: it waits in your browser until you vote, and is then saved to your account. We are not told which pages you opened, what you read, or which site sent you to BillTracking. The only things this website ever sends from your device are a vote you choose to cast and, if you sign in, the bills you follow, your docket keywords, your settings and what you do in your notifications list. These are described below.
 
 One caveat: the site is hosted on **GitHub Pages**, and every web host has to handle your IP address at the network level to send you a page. GitHub does not show us those logs and we have never seen them. But we can't say that no IP address is processed anywhere, because that would not be true.
 
@@ -69,6 +69,8 @@ Counts are exact. We don't round, estimate or randomise them, because the point 
 ### Where it's stored and why
 
 Votes are held in a database in **Frankfurt, Germany**, so that this data does not leave the EU. The legal basis is your **explicit consent** (GDPR Article 9(2)(a)), which you give by choosing to vote after being told what a vote records. Withdrawing consent and deleting your account are the same action. We don't hold your votes after you withdraw consent or delete your account.
+
+The yes or no about your connection has a different legal basis: our legitimate interest in keeping the vote counts from being manipulated (GDPR Article 6(1)(f)).
 
 Our database provider is Supabase, which acts as a processor on our instructions. If you sign in with Apple, we also store a token from Apple. We use it for one purpose only: to disconnect BillTracking from your Apple ID when you delete your account, as Apple requires.
 
