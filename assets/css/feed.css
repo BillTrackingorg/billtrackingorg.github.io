@@ -1103,6 +1103,7 @@ button[disabled],
 .bt-docket[data-polity="us"],
 .vl-tabs[data-polity="us"],
 .vl-row[data-polity="us"],
+.bill-wrap[data-polity="us"],
 .bt-sw[data-kwadd][data-polity="us"] {
   --accent: var(--navy);
   --accent-wash: var(--wash);
@@ -1114,6 +1115,7 @@ button[disabled],
 .bt-docket[data-polity="eu"],
 .vl-tabs[data-polity="eu"],
 .vl-row[data-polity="eu"],
+.bill-wrap[data-polity="eu"],
 .bt-sw[data-kwadd][data-polity="eu"] {
   --accent: var(--royal);
   --accent-wash: var(--wash-eu);
