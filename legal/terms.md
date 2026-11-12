@@ -9,7 +9,7 @@ htmlTitle: Terms of use
 description: The terms for using BillTracking: what the service is, what it costs, what it does not promise, and the rules for voting and for reusing the content.
 ogTitle: Terms of use
 ogDescription: A live, source-linked record of lawmaking
-updated: 11 November 2026
+updated: 12 November 2026
 ---
 
 BillTracking republishes the official legislative record of the US Congress and the European Union. It is **free**, there is nothing to buy, and it is run by one person, not a company. These terms are short because the arrangement is simple.
@@ -23,7 +23,7 @@ BillTracking is a set of automated feeds and an app that report steps in the leg
 
 ### Errors
 
-Classifying legislative steps automatically is hard, and the record itself is sometimes changed after the fact. Matching a summary to the right version of a bill is also done automatically and can go wrong, and the plain-English version written by AI can contain mistakes. [Accuracy & corrections](accuracy.html) explains how we do it. We do not promise accuracy. We do promise that errors are corrected in the open and logged publicly. A plain-English version found to be wrong is withdrawn and listed in the corrections log. Please report anything that looks wrong to [accuracy@billtracking.org](mailto:accuracy@billtracking.org).
+Classifying legislative steps automatically is hard, and the record itself is sometimes changed after the fact. Matching a summary to the right version of a bill is also done automatically and can go wrong, and the plain-English version written by AI can contain mistakes. [Accuracy & corrections](accuracy.html) explains how we do it. We do not promise accuracy. When we find an error, we fix it; some fixes are marked on the post and listed in our public corrections log. A plain-English version found to be wrong is corrected, or in rare cases withdrawn and listed in the corrections log. Please report anything that looks wrong to [accuracy@billtracking.org](mailto:accuracy@billtracking.org).
 
 Keywords and notifications are a convenience. A keyword is an exact match. It finds its words whole and in the order you typed them, ignoring capital letters, accents and punctuation, in the parts of a post your keyword settings include. For a post that went out without an official summary, it can also find them in the bill's most recent official summary at that time. It does not match other forms of a word or synonyms, so it will not catch every bill on a topic. A notification can also arrive late or not at all. If you must not miss something, follow the bill and check the source.
 
@@ -60,6 +60,8 @@ The service is provided as-is. To the extent the law allows, we are not liable f
 > **What we do not exclude, because we cannot and should not:** liability for death or personal injury caused by negligence, for fraud, for damage caused intentionally, and any liability that the law of your country does not allow to be excluded. **If you are a consumer in the EU or UK, nothing here takes away rights you have under your own national law, including the right to bring a claim in your own courts.**
 
 We may update these terms. If we change something that matters, we will say so on this page and update the date. If you keep using the service after a change, that means you accept it. If you don't want to, you can stop using it and delete your account.
+
+**12 November 2026.** “Errors” now says that we fix errors when we find them and mark some of them on the post and in the corrections log, and that a plain-English version found to be wrong is corrected, or in rare cases withdrawn. Nothing else here changed.
 
 **11 November 2026.** “What BillTracking is” and “Errors” now say that a plain-English version of an official summary, where a post shows one, is written by AI and marked as such, that it can contain mistakes, and that one found to be wrong is withdrawn and listed in the corrections log. Nothing else here changed.
 
