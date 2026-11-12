@@ -372,6 +372,29 @@ jobs:
           done < paths.txt
           echo "fetched $(ls paths 2>/dev/null | wc -l) path artifacts"
 
+      # [2026-11-12, the app's OPEN-ITEMS OI-0333, DECISIONS D47] THE BILL'S OVERVIEW FILES, the facts at the top of a
+      # bill page, which each bot's path build writes beside the path: {FEED}/overview/<the same file name>. The same
+      # list as the paths (one derivation, the app's). • 200 → use it. • 404 → no file yet (a bot writes one at the
+      # bill's next rebuild): the page shows the newest post's facts, honestly, with no status. • anything else → a
+      # warning, and the page again shows the post's facts: a missing overview makes no claim, so unlike a path it
+      # does not stop the run.
+      - name: Fetch bill overview files
+        if: steps.fetch.outputs.render == 'true' && inputs.legislature
+        env:
+          FEED: https://feed.billtracking.org
+        run: |
+          set -euo pipefail
+          mkdir -p overview
+          while read -r name; do
+            [ -n "$name" ] || continue
+            case "$name" in */*|*..*) echo "::error::refusing suspicious overview name: $name"; exit 1;; esac
+            code=$(curl -sSL --retry 3 --retry-all-errors --max-time 60 -o "overview/$name" -w '%{http_code}' "$FEED/overview/$name" 2>/dev/null || echo 000)
+            if [ "$code" = "200" ]; then :
+            elif [ "$code" = "404" ]; then rm -f "overview/$name"
+            else rm -f "overview/$name"; echo "::warning::overview file $name returned $code: its page shows the newest post's facts"; fi
+          done < paths.txt
+          echo "fetched $(find overview -maxdepth 1 -name '*.json' | wc -l) overview files"
+
       # The renderer scans the feed dir for *-overrides.jsonl itself. It renders
       # into a scratch dir — never straight into the checkout — so the guards
       # below can compare before anything in the repo changes. Bill pages carry
@@ -393,7 +416,8 @@ jobs:
           # renderer reads no summary file. [2026-10-29, the website split] A called run
           # renders its legislature's own site (--legislature, with its path artifacts);
           # the main run, the corrections log and the forwarding pages.
-          node ${RT}tools/bt-site.cjs ${LEG:+--legislature "$LEG" --paths paths} --feed feed --out out
+          # [2026-11-12, OI-0333] …and its bills' overview files (--overview), fetched beside the paths.
+          node ${RT}tools/bt-site.cjs ${LEG:+--legislature "$LEG" --paths paths --overview overview} --feed feed --out out
           # A legislature whose first posts name no bill has no out/b yet; its posts still publish.
           mkdir -p out/b
           n=$(ls out/p/*.html | grep -vc 'index.html' || true)
