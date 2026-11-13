@@ -340,6 +340,33 @@ jobs:
           done
           echo "::error::could not push after 3 attempts"; exit 1
 
+      # [2026-11-13, the app's OPEN-ITEMS OI-0381 and OI-0333] THE DATA REPO'S OWN LIST of its path, overview and summary files,
+      # read once, so the three steps below ask the host only for files that exist. The host's answer for a missing file is
+      # not reliable (a 503 from its cache as often as a 404, measured 2026-11-13), and three 503s stopped the asking for
+      # every bill after them, so most bill pages lost their facts. A file not in the list is "no file yet", with no
+      # request. If the list cannot be read (or comes back cut short), the steps ask for every file, as before, and say so.
+      # [2026-11-13, later] It also lists the path files, for the path step's sake: a brand-new bill whose path file is
+      # not written yet got a 503 instead of a 404 and the strict path step failed the render (eu run 43433492306,
+      # 2026/0356); a bill the list does not hold now has no path yet, with no request.
+      - name: List the data repo's bill files
+        id: list
+        if: steps.fetch.outputs.render == 'true' && inputs.legislature
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          if gh api 'repos/BillTrackingorg/billtracking-feed/git/trees/main?recursive=1' > feed-tree.json 2>/dev/null              && [ "$(jq -r '.truncated' feed-tree.json)" = "false" ]; then
+            jq -r '.tree[] | select(.type == "blob") | .path' feed-tree.json > feed-tree.txt
+            sed -n 's#^paths/##p' feed-tree.txt > paths-names.txt
+            sed -n 's#^overview/##p' feed-tree.txt > overview-names.txt
+            sed -n 's#^summary/##p' feed-tree.txt > summary-names.txt
+            echo "listed=true" >> "$GITHUB_OUTPUT"
+            echo "the data repo lists $(wc -l < paths-names.txt) path, $(wc -l < overview-names.txt) overview and $(wc -l < summary-names.txt) summary files"
+          else
+            echo "listed=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::the data repo's file list could not be read: every path, overview and summary file is asked for, as before"
+          fi
+
       # BILL-PATH ARTIFACTS. The bill pages (/b/) show the same full procedural
       # record the app's bill screen shows, which lives in per-bill artifacts at
       # {FEED}/paths/*.json (the exact files the app's path-client reads). GitHub
@@ -357,6 +384,7 @@ jobs:
         if: steps.fetch.outputs.render == 'true' && inputs.legislature
         env:
           FEED: https://feed.billtracking.org
+          LISTED: ${{ steps.list.outputs.listed }}
         run: |
           set -euo pipefail
           mkdir -p paths
@@ -365,35 +393,13 @@ jobs:
           while read -r name; do
             [ -n "$name" ] || continue
             case "$name" in */*|*..*) echo "::error::refusing suspicious artifact name: $name"; exit 1;; esac
+            if [ "${LISTED:-false}" = "true" ] && ! grep -qxF -- "$name" paths-names.txt; then rm -f "paths/$name"; continue; fi   # no path file in the repo: posts-only, honest
             code=$(curl -sSL --retry 3 --retry-all-errors --max-time 60 -o "paths/$name" -w '%{http_code}' "$FEED/paths/$name" 2>/dev/null || echo 000)
             if [ "$code" = "200" ]; then :
             elif [ "$code" = "404" ]; then rm -f "paths/$name"   # no path yet — posts-only, honest
             else echo "::error::path artifact $name returned $code — refusing to render it posts-only (it may exist)"; exit 1; fi
           done < paths.txt
           echo "fetched $(ls paths 2>/dev/null | wc -l) path artifacts"
-
-      # [2026-11-13, the app's OPEN-ITEMS OI-0381 and OI-0333] THE DATA REPO'S OWN LIST of its overview and summary files,
-      # read once, so the two steps below ask the host only for files that exist. The host's answer for a missing file is
-      # not reliable (a 503 from its cache as often as a 404, measured 2026-11-13), and three 503s stopped the asking for
-      # every bill after them, so most bill pages lost their facts. A file not in the list is "no file yet", with no
-      # request. If the list cannot be read (or comes back cut short), both steps ask for every file, as before, and say so.
-      - name: List the data repo's bill files
-        id: list
-        if: steps.fetch.outputs.render == 'true' && inputs.legislature
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -uo pipefail
-          if gh api 'repos/BillTrackingorg/billtracking-feed/git/trees/main?recursive=1' > feed-tree.json 2>/dev/null              && [ "$(jq -r '.truncated' feed-tree.json)" = "false" ]; then
-            jq -r '.tree[] | select(.type == "blob") | .path' feed-tree.json > feed-tree.txt
-            sed -n 's#^overview/##p' feed-tree.txt > overview-names.txt
-            sed -n 's#^summary/##p' feed-tree.txt > summary-names.txt
-            echo "listed=true" >> "$GITHUB_OUTPUT"
-            echo "the data repo lists $(wc -l < overview-names.txt) overview and $(wc -l < summary-names.txt) summary files"
-          else
-            echo "listed=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::the data repo's file list could not be read: every overview and summary file is asked for, as before"
-          fi
 
       # [2026-11-12, the app's OPEN-ITEMS OI-0333, DECISIONS D47] THE BILL'S OVERVIEW FILES, the facts at the top of a
       # bill page, which each bot's path build writes beside the path: {FEED}/overview/<the same file name>. The same
