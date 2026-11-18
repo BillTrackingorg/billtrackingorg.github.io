@@ -107,6 +107,20 @@ button[disabled],
   max-width: none;
 }
 
+.bt-testing {
+  margin: 0.9rem 0 0;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 55%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--gold) 18%, transparent);
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.45;
+  max-width: none;
+}
+
 .feed-fresh {
   font-size: 0.8rem;
   line-height: 1.5;
@@ -161,7 +175,7 @@ button[disabled],
   margin: 1.35rem auto 0;
   background: var(--card);
   border-color: var(--line);
-  color: var(--navy);
+  color: var(--accent);
 }
 .btn-more:hover { background: var(--wash); }
 .btn-more[hidden] { display: none; }
@@ -1891,13 +1905,14 @@ span.bt-tex { cursor: default; }
   font-family: var(--sans);
   font-size: 13px;
   font-weight: 600;
-  color: var(--navy);
+  color: var(--accent);
   cursor: pointer;
   box-shadow: 0 1px 4px rgba(10, 49, 97, 0.05);
 }
 .bt-disp .glyph { width: 17px; height: 17px; }
 .bt-disp .glyph-sm { width: 14px; height: 14px; }
-.bt-disp[aria-expanded="true"] { background: var(--wash); border-color: var(--accent); }
+
+.bt-disp[aria-expanded="true"] { background: var(--accent-wash); border-color: var(--accent); }
 
 .bt-dot { width: 7px; height: 7px; border-radius: 99px; background: var(--accent-hair); flex: none; }
 .bt-dot[hidden] { display: none; }
@@ -1919,11 +1934,11 @@ span.bt-tex { cursor: default; }
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 0.52rem 0;
-  color: var(--product-blue);
+  color: var(--accent);
   box-shadow: 0 1px 4px rgba(10, 49, 97, 0.05);
 }
 .bt-plus .glyph { width: 17px; height: 17px; }
-.bt-plus[aria-expanded="true"] { background: var(--wash); border-color: var(--accent); }
+.bt-plus[aria-expanded="true"] { background: var(--accent-wash); border-color: var(--accent); }
 
 .bt-drop,
 .bt-panel {
@@ -1990,13 +2005,14 @@ span.bt-tex { cursor: default; }
   margin: 0.55rem 0 0;
 }
 .bt-filtered[hidden] { display: none; }
+
 .bt-filtered button {
   background: none;
   border: 0;
   padding: 0;
   font: inherit;
   font-weight: 700;
-  color: var(--navy);
+  color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
@@ -2116,19 +2132,12 @@ span.bt-tex { cursor: default; }
 }
 .bt-pick span:hover { color: var(--navy-ink); }
 .bt-pick input:checked + span {
-  background: var(--wash);
-  border-color: #C7D8EC;
-  color: var(--navy-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
 }
 .bt-pick input:focus-visible + span { outline: 3px solid var(--navy); outline-offset: 2px; }
-.bt-note {
-  font-family: var(--sans);
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--gold-text);
-  margin: 0.5rem 0 0;
-  max-width: none;
-}
+
 .bt-keyword-cap { margin: 0.35rem 0 0.6rem; }
 
 .bt-foot {
@@ -2171,7 +2180,6 @@ span.bt-tex { cursor: default; }
 .bt-sw:checked::after { left: 21px; }
 .bt-sw:disabled { opacity: 0.5; cursor: default; }
 
-.bt-sw[data-kwadd-all] { --accent: var(--product-blue); }
 .bt-sw[data-state="partial"] { background: var(--accent); }
 .bt-sw[data-state="partial"]::after {
   left: 12px;
@@ -2249,16 +2257,17 @@ span.bt-tex { cursor: default; }
   font-size: 14px;
   color: var(--ink);
 }
+
 .bt-add {
   flex: none;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 34px;
-  border: 0;
+  border: 1.5px solid var(--accent);
   border-radius: 8px;
-  background: var(--accent);
-  color: #fff;
+  background: var(--card);
+  color: var(--accent);
   cursor: pointer;
 }
 .bt-add .glyph { width: 16px; height: 16px; stroke-width: 2.4; }
