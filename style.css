@@ -374,6 +374,9 @@ a:hover { color: var(--royal); }
    below it; it read `flex-wrap: wrap`. */
 .nt-head { display: flex; align-items: baseline; gap: 0.4rem; }
 .nt-ref { font-family: var(--sans); font-size: 0.85rem; font-weight: 700; color: var(--navy); min-width: 0; }
+/* The legislature's stamp (2026-11-18, OPEN-ITEMS OI-0348): its two letters left of the reference, inside
+   `.nt-ref`, so in the reference's colour and weight; a step smaller and spaced, as the phone's stamp. */
+.nt-stamp { font-size: 0.72rem; letter-spacing: 0.08em; }
 .nt-date { font-family: var(--sans); font-size: 0.74rem; color: var(--ink-faint); flex: none; white-space: nowrap; }
 /* The label keeps the bot's emoji here - a `<use>` would paint nothing on a
    page with no sprite, which is most of this site (src/web/notices.ts).
