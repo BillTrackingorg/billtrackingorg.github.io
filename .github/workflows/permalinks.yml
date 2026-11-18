@@ -217,7 +217,9 @@ jobs:
           # guard that did not run this time, never a run held to its timeout.
           ghbin=$(command -v gh)
           gh() { timeout 20 "$ghbin" "$@"; }
-          if ! based=$(node tools/bt-site.cjs --list-legislatures | awk '{print $1}'); then
+          # --list-sites: every registered legislature's own repository, one being tested included
+          # (OPEN-ITEMS OI-0379); --list-legislatures leaves that one out.
+          if ! based=$(node tools/bt-site.cjs --list-sites | awk '{print $1}'); then
             echo "::warning::the renderer could not list the legislatures, so the first-path-segment guards did not run (the fetch below says why)"
             exit 0
           fi
@@ -226,7 +228,7 @@ jobs:
               if grep -qxF "$repo" /tmp/root.txt; then
                 echo "::error::the Pages-enabled repository ${repo} is named after a root entry of this site: GitHub serves it at billtracking.org/${repo}/ and hides this site's own /${repo} from every reader. Rename it, or switch its Pages off (its Settings > Pages). This run renders as normal; nothing heals this by itself."
               elif [ "$repo" != "$main" ] && [ "$repo" != "billtracking-feed" ] && ! printf '%s\n' $based | grep -qxF "$repo"; then
-                echo "::warning::the Pages-enabled repository ${repo} is neither this site, the feed nor a launched legislature, and is served at billtracking.org/${repo}/, on the sign-in origin, where its scripts can read a signed-in reader's session (a legislature's repository created at its arming, before its registry row ships or while the row is marked unlaunched, is the designed case)."
+                echo "::warning::the Pages-enabled repository ${repo} is neither this site, the feed nor a registered legislature, and is served at billtracking.org/${repo}/, on the sign-in origin, where its scripts can read a signed-in reader's session (a legislature's repository created at its arming, before its registry row ships or while the row is marked unlaunched, is the designed case)."
               fi
             done
             echo "Pages-enabled repositories: $(echo $pages)"
