@@ -1,1 +1,0 @@
-import{b as e,c as f,d as g,e as h}from"./bt-chunk-RMT6E5GL.js";import{c as d}from"./bt-chunk-VBR74RRX.js";import{c as a,d as b,e as c}from"./bt-chunk-U2PB35WN.js";export{d as AUTH_STORAGE_KEY,a as REQUEST_TIMED_OUT,b as REQUEST_TIMEOUT_MS,e as clientFetch,f as createSupabaseClient,c as fetchWithLimit,g as installSupabaseClient,h as supabaseClient};
