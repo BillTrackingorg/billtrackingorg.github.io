@@ -212,7 +212,6 @@ button[disabled],
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.glyph--filled { fill: currentColor; stroke: none; }
 
 .card {
   position: relative;
